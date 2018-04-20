@@ -21,7 +21,7 @@ impl Index<usize> for Pos2 {
         match i {
             0 => &self.x,
             1 => &self.y,
-            _ => panic!("Accesing position out of bounds."),
+            _ => panic!("Accessing position out of bounds."),
         }
     }
 }
