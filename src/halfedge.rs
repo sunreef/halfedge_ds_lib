@@ -1,4 +1,5 @@
 use std::cmp::{Eq, PartialEq};
+use std::rc::Rc;
 
 use vertex::Vertex2;
 use facet::Facet2;

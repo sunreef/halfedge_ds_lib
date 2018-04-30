@@ -6,3 +6,4 @@ authors = ["Victor Cornillere <v.cornillere@gmail.com>"]
 [dependencies]
 rand = "0.4"
 simplesvg = "0.4.0"
+nalgebra = "0.14.1"

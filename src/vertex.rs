@@ -1,5 +1,5 @@
 use std::rc::Rc;
-use std::ops::Index;
+use std::ops::{Index, Add, Sub, Mul, Div};
 use std::cmp::{PartialEq, Eq};
 
 use utils::Handle;
@@ -33,6 +33,57 @@ impl PartialEq for Pos2 {
 }
 
 impl Eq for Pos2 {}
+
+impl Add for Pos2 {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self::Output {
+        Pos2 {
+            x : self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+
+impl Sub for Pos2 {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Pos2 {
+            x : self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl Div<f32> for Pos2 {
+    type Output = Self;
+    fn div(self, rhs: f32) -> Self::Output {
+        Pos2 {
+            x: self.x / rhs,
+            y: self.y / rhs,
+        }
+    }
+}
+
+impl Mul<f32> for Pos2 {
+    type Output = Self;
+    fn mul(self, rhs: f32) -> Self::Output {
+        Pos2 {
+            x: self.x * rhs,
+            y: self.y * rhs,
+        }
+    }
+}
+
+impl Mul<Pos2> for f32 {
+    type Output = Pos2;
+    fn mul(self, rhs: Pos2) -> Self::Output {
+        Pos2 {
+            x: self * rhs.x,
+            y: self * rhs.y,
+        }
+    }
+
+}
 
 pub struct Vertex<T: Pos> {
     pub position: T,

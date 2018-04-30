@@ -47,38 +47,38 @@ impl Polyhedron2 {
 impl Polyhedron2 {
     pub fn create_triangle() -> Polyhedron2 {
         let v1 = new_handle(Vertex2 {
-                                edge: None,
-                                position: Pos2 { x: 0., y: 0. },
-                            });
+            edge: None,
+            position: Pos2 { x: 0., y: 0. },
+        });
         let v2 = new_handle(Vertex2 {
-                                edge: None,
-                                position: Pos2 { x: 0., y: 200. },
-                            });
+            edge: None,
+            position: Pos2 { x: 0., y: 200. },
+        });
         let v3 = new_handle(Vertex2 {
-                                edge: None,
-                                position: Pos2 { x: 200., y: 0. },
-                            });
+            edge: None,
+            position: Pos2 { x: 200., y: 0. },
+        });
 
         let f = new_handle(Facet2::new());
 
         let e1 = new_handle(HalfEdge2 {
-                                vertex: Some(Rc::clone(&v1)),
-                                opposite: None,
-                                next: None,
-                                face: Some(Rc::clone(&f)),
-                            });
+            vertex: Some(Rc::clone(&v1)),
+            opposite: None,
+            next: None,
+            face: Some(Rc::clone(&f)),
+        });
         let e3 = new_handle(HalfEdge2 {
-                                vertex: Some(Rc::clone(&v3)),
-                                opposite: None,
-                                next: Some(Rc::clone(&e1)),
-                                face: Some(Rc::clone(&f)),
-                            });
+            vertex: Some(Rc::clone(&v3)),
+            opposite: None,
+            next: Some(Rc::clone(&e1)),
+            face: Some(Rc::clone(&f)),
+        });
         let e2 = new_handle(HalfEdge2 {
-                                vertex: Some(Rc::clone(&v2)),
-                                opposite: None,
-                                next: Some(Rc::clone(&e3)),
-                                face: Some(Rc::clone(&f)),
-                            });
+            vertex: Some(Rc::clone(&v2)),
+            opposite: None,
+            next: Some(Rc::clone(&e3)),
+            face: Some(Rc::clone(&f)),
+        });
         e1.borrow_mut().next = Some(Rc::clone(&e2));
 
         v1.borrow_mut().edge = Some(Rc::clone(&e1));
@@ -109,48 +109,48 @@ impl Polyhedron2 {
 
     pub fn create_rectangle(corner_x: f32, corner_y: f32, height: f32, width: f32) -> Polyhedron2 {
         let v1 = new_handle(Vertex2 {
-                                edge: None,
-                                position: Pos2 { x: corner_x, y: corner_y },
-                            });
+            edge: None,
+            position: Pos2 { x: corner_x, y: corner_y },
+        });
         let v2 = new_handle(Vertex2 {
-                                edge: None,
-                                position: Pos2 { x: corner_x, y: corner_y + height },
-                            });
+            edge: None,
+            position: Pos2 { x: corner_x, y: corner_y + height },
+        });
         let v3 = new_handle(Vertex2 {
-                                edge: None,
-                                position: Pos2 { x: corner_x + width, y: corner_y + height },
-                            });
+            edge: None,
+            position: Pos2 { x: corner_x + width, y: corner_y + height },
+        });
         let v4 = new_handle(Vertex2 {
-                                edge: None,
-                                position: Pos2 { x: corner_x + width, y: corner_y },
-                            });
+            edge: None,
+            position: Pos2 { x: corner_x + width, y: corner_y },
+        });
 
         let f = new_handle(Facet2::new());
 
         let e1 = new_handle(HalfEdge2 {
-                                vertex: Some(Rc::clone(&v1)),
-                                opposite: None,
-                                next: None,
-                                face: Some(Rc::clone(&f)),
-                            });
+            vertex: Some(Rc::clone(&v1)),
+            opposite: None,
+            next: None,
+            face: Some(Rc::clone(&f)),
+        });
         let e4 = new_handle(HalfEdge2 {
-                                vertex: Some(Rc::clone(&v4)),
-                                opposite: None,
-                                next: Some(Rc::clone(&e1)),
-                                face: Some(Rc::clone(&f)),
-                            });
+            vertex: Some(Rc::clone(&v4)),
+            opposite: None,
+            next: Some(Rc::clone(&e1)),
+            face: Some(Rc::clone(&f)),
+        });
         let e3 = new_handle(HalfEdge2 {
-                                vertex: Some(Rc::clone(&v3)),
-                                opposite: None,
-                                next: Some(Rc::clone(&e4)),
-                                face: Some(Rc::clone(&f)),
-                            });
+            vertex: Some(Rc::clone(&v3)),
+            opposite: None,
+            next: Some(Rc::clone(&e4)),
+            face: Some(Rc::clone(&f)),
+        });
         let e2 = new_handle(HalfEdge2 {
-                                vertex: Some(Rc::clone(&v2)),
-                                opposite: None,
-                                next: Some(Rc::clone(&e3)),
-                                face: Some(Rc::clone(&f)),
-                            });
+            vertex: Some(Rc::clone(&v2)),
+            opposite: None,
+            next: Some(Rc::clone(&e3)),
+            face: Some(Rc::clone(&f)),
+        });
         e1.borrow_mut().next = Some(Rc::clone(&e2));
 
         v1.borrow_mut().edge = Some(Rc::clone(&e1));
@@ -274,6 +274,18 @@ impl Polyhedron2 {
         }
         (area * 0.5f32).abs()
     }
+
+    pub fn get_prev_edge(&self, edge: Handle<HalfEdge2>) -> Handle<HalfEdge2> {
+        let mut current_edge = get_element!(edge, next);
+        while(current_edge != edge) {
+            let next_edge = get_element!(current_edge, next);
+            if (next_edge == edge) {
+                return current_edge;
+            }
+            current_edge = next_edge;
+        }
+        edge
+    }
 }
 
 // Combinatorial Euler operators
@@ -311,7 +323,7 @@ impl Polyhedron2 {
             {
                 let mut edge_mut = new_edges[(2 * i)].borrow_mut();
                 edge_mut.next = Some(Rc::clone(&new_edges[(2 * degree as usize + 2 * i - 1) %
-                                                (2 * degree as usize)]));
+                                               (2 * degree as usize)]));
                 edge_mut.opposite = Some(Rc::clone(&new_edges[(2 * i + 1)]));
                 edge_mut.face = Some(Rc::clone(&new_facets[i]));
                 edge_mut.vertex = Some(Rc::clone(&vertex_handle));
@@ -544,12 +556,89 @@ impl Polyhedron2 {
     }
 
     pub fn split_vertex(&mut self, edge1: Handle<HalfEdge2>, edge2: Handle<HalfEdge2>) {
-        let mut vertex1 = get_element!(edge1, vertex);
-        let mut vertex2 = get_element!(edge2, vertex);
+        let vertex1 = get_element!(edge1, vertex);
+        let vertex2 = get_element!(edge2, vertex);
 
         assert!(vertex1 == vertex2);
 
-        let mut new_vertex = new_handle(Vertex2 { position: vertex1.borrow().position, edge: Some(get_element!(vertex2, edge)) });
+        let new_vertex = new_handle(Vertex2 { position: vertex1.borrow().position, edge: Some(Rc::clone(&edge2)) });
+
+        let new_edge1 = new_handle(HalfEdge2 { vertex: Some(Rc::clone(&new_vertex)), face: Some(get_element!(edge1, face)), opposite: None, next: Some(get_element!(edge1, next)) });
+        let new_edge2 = new_handle(HalfEdge2 { vertex: Some(Rc::clone(&vertex1)), face: Some(get_element!(edge2, face)), opposite: Some(Rc::clone(&new_edge1)), next: Some(get_element!(edge2, next)) });
+        new_edge1.borrow_mut().opposite = Some(Rc::clone(&new_edge2));
+
+        let mut current_edge = get_element!(new_edge1, next);
+        current_edge = get_element!(current_edge, opposite);
+        while(current_edge != edge2) {
+            current_edge.borrow_mut().vertex = Some(Rc::clone(&new_vertex));
+
+            current_edge = get_element!(current_edge, next);
+            current_edge = get_element!(current_edge, opposite);
+        }
+
+        edge1.borrow_mut().next = Some(Rc::clone(&new_edge1));
+
+        edge2.borrow_mut().next = Some(Rc::clone(&new_edge2));
+        edge2.borrow_mut().vertex = Some(Rc::clone(&new_vertex));
+
+        self.vertices.push(new_vertex);
+
+        self.edges.push(new_edge1);
+        self.edges.push(new_edge2);
+    }
+
+    pub fn join_vertex(&mut self, edge: Handle<HalfEdge2>) {
+        let opposite_edge = get_element!(edge, opposite);
+
+        let vertex = get_element!(edge, vertex);
+        let opposite_vertex = get_element!(opposite_edge, vertex);
+
+        let new_pos = 0.5f32 * (vertex.borrow().position + opposite_vertex.borrow().position);
+        vertex.borrow_mut().position = new_pos;
+
+        let face = get_element!(edge, face);
+        face.borrow_mut().edge = Some(get_element!(edge, next));
+
+        let opposite_face = get_element!(opposite_edge, face);
+        opposite_face.borrow_mut().edge = Some(get_element!(opposite_edge, next));
+
+        let previous_edge = self.get_prev_edge(Rc::clone(&edge));
+        let previous_opposite_edge = self.get_prev_edge(Rc::clone(&opposite_edge));
+
+        let mut current_edge = Rc::clone(&opposite_edge);
+        while(current_edge != previous_edge) {
+            current_edge.borrow_mut().vertex = Some(Rc::clone(&vertex));
+            current_edge = get_element!(current_edge, next);
+            current_edge = get_element!(current_edge, opposite);
+        }
+
+        previous_edge.borrow_mut().next = Some(get_element!(edge, next));
+        previous_edge.borrow_mut().vertex = Some(Rc::clone(&vertex));
+
+        previous_opposite_edge.borrow_mut().next = Some(get_element!(opposite_edge, next));
+
+        for i in 0..self.edges.len() {
+            if edge == self.edges[i] {
+                self.edges.remove(i);
+                break;
+            }
+        }
+        for i in 0..self.edges.len() {
+            if opposite_edge == self.edges[i] {
+                self.edges.remove(i);
+                break;
+            }
+        }
+        for i in 0..self.vertices.len() {
+            if opposite_vertex == self.vertices[i] {
+                self.vertices.remove(i);
+                break;
+            }
+        }
+
+
+
+
 
     }
 }
@@ -564,7 +653,7 @@ impl Polyhedron2 {
         for f in &self.facets {
             let mut face_lines = Vec::new();
             let degree = f.borrow().degree();
-            
+
             let mut current_edge = get_element!(f, edge);
             for _ in 0..degree {
                 let first_vertex = get_element!(current_edge, vertex);
