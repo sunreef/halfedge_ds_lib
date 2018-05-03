@@ -7,3 +7,4 @@ pub mod halfedge;
 pub mod vertex;
 pub mod facet;
 pub mod polyhedron;
+pub mod pos;

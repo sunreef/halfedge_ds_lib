@@ -6,7 +6,8 @@ use std::f64::consts::*;
 use simplesvg::*;
 
 use utils::*;
-use vertex::{Vertex2, Pos2};
+use pos::{Pos, Pos2};
+use vertex::{Vertex2};
 use halfedge::HalfEdge2;
 use facet::Facet2;
 
@@ -588,6 +589,9 @@ impl Polyhedron2 {
     }
 
     pub fn join_vertex(&mut self, edge: Handle<HalfEdge2>) {
+        // This function will fail on edge vertices. 
+        // Need to figure out a way to make it work.
+        //
         let opposite_edge = get_element!(edge, opposite);
 
         let vertex = get_element!(edge, vertex);
