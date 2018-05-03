@@ -1,9 +1,9 @@
 use std::ops::{Index, Add, Sub, Mul, Div};
 use std::cmp::{PartialEq, Eq};
 
-pub trait Pos: Copy + Clone + Sized + Index<usize> + Eq + Add + Sub + Mul<f32> + Div<f32>{}
+pub trait Pos: Default + Copy + Clone + Sized + Index<usize> + Eq + Add<Output = Self> + Sub<Output = Self> + Mul<f32, Output = Self> + Div<f32, Output = Self>{}
 
-#[derive(Copy, Clone)]
+#[derive(Default, Copy, Clone)]
 pub struct Pos2 {
     pub x: f32,
     pub y: f32,

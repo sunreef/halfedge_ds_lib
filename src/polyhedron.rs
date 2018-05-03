@@ -7,23 +7,23 @@ use simplesvg::*;
 
 use utils::*;
 use pos::{Pos, Pos2};
-use vertex::{Vertex2};
-use halfedge::HalfEdge2;
-use facet::Facet2;
+use vertex::{Vertex, Vertex2};
+use halfedge::{HalfEdge, HalfEdge2};
+use facet::{Facet, Facet2};
 
 use std::vec::Vec;
 
-pub struct Polyhedron2 {
-    pub vertices: Vec<Handle<Vertex2>>,
-    pub edges: Vec<Handle<HalfEdge2>>,
-    pub facets: Vec<Handle<Facet2>>,
+pub struct Polyhedron<T: Pos> {
+    pub vertices: Vec<Handle<Vertex<T>>>,
+    pub edges: Vec<Handle<HalfEdge<T>>>,
+    pub facets: Vec<Handle<Facet<T>>>,
 }
 
 // Basic methods
 
-impl Polyhedron2 {
-    pub fn new() -> Polyhedron2 {
-        Polyhedron2 {
+impl<T: Pos> Polyhedron<T> {
+    pub fn new() -> Polyhedron<T> {
+        Polyhedron {
             vertices: Vec::new(),
             edges: Vec::new(),
             facets: Vec::new(),
@@ -45,6 +45,7 @@ impl Polyhedron2 {
 
 // Various constructors
 
+pub type Polyhedron2 = Polyhedron<Pos2>;
 impl Polyhedron2 {
     pub fn create_triangle() -> Polyhedron2 {
         let v1 = new_handle(Vertex2 {
@@ -229,10 +230,9 @@ impl Polyhedron2 {
 
 // Utility operators
 
-impl Polyhedron2 {
-    pub fn get_center_position(&self, edge: Handle<HalfEdge2>) -> Pos2 {
-        let mut center_x = 0f32;
-        let mut center_y = 0f32;
+impl<T: Pos> Polyhedron<T> {
+    pub fn get_center_position(&self, edge: Handle<HalfEdge<T>>) -> T {
+        let mut center : T;
         let mut d = 0i32;
 
         let mut current_edge = Rc::clone(&edge);
@@ -240,21 +240,16 @@ impl Polyhedron2 {
             let v = get_element!(current_edge, vertex);
             let pos = v.borrow().position;
 
-            center_x += pos.x;
-            center_y += pos.y;
+            center = center + pos;
             d += 1;
 
             current_edge = get_element!(current_edge, next);
             edge != current_edge 
         } {}
 
-        center_x /= d as f32;
-        center_y /= d as f32;
+        center = center / (d as f32);
 
-        Pos2 {
-            x: center_x,
-            y: center_y,
-        }
+        center
     }
 
     pub fn get_area(&self, edge: Handle<HalfEdge2>) -> f32 {
