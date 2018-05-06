@@ -1,7 +1,18 @@
 use std::ops::{Index, Add, Sub, Mul, Div};
 use std::cmp::{PartialEq, Eq};
 
-pub trait Pos: Default + Copy + Clone + Sized + Index<usize> + Eq + Add<Output = Self> + Sub<Output = Self> + Mul<f32, Output = Self> + Div<f32, Output = Self>{}
+pub trait Pos: Default + Copy + Clone + Sized + Index<usize> + Eq + Add<Output = Self> + Sub<Output = Self> + Mul<f32, Output = Self> + Div<f32, Output = Self>{
+    fn dot(&self, rhs: &Self) -> f32;
+
+    fn sq_norm(&self) -> f32 { 
+        self.dot(&self)
+    }
+
+    fn norm(&self) -> f32 {
+        self.sq_norm().sqrt()
+    }
+
+}
 
 #[derive(Default, Copy, Clone)]
 pub struct Pos2 {
@@ -9,7 +20,11 @@ pub struct Pos2 {
     pub y: f32,
 }
 
-impl Pos for Pos2 {}
+impl Pos for Pos2 {
+    fn dot(&self, rhs: &Self) -> f32 {
+        self.x * rhs.x + self.y * rhs.y
+    }
+}
 
 impl Index<usize> for Pos2 {
     type Output = f32;

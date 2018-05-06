@@ -232,7 +232,7 @@ impl Polyhedron2 {
 
 impl<T: Pos> Polyhedron<T> {
     pub fn get_center_position(&self, edge: Handle<HalfEdge<T>>) -> T {
-        let mut center : T;
+        let mut center = T::default();
         let mut d = 0i32;
 
         let mut current_edge = Rc::clone(&edge);
@@ -252,18 +252,31 @@ impl<T: Pos> Polyhedron<T> {
         center
     }
 
-    pub fn get_area(&self, edge: Handle<HalfEdge2>) -> f32 {
+    pub fn get_area(&self, edge: Handle<HalfEdge<T>>) -> f32 {
         let mut area = 0f32;
 
-        let mut previous_vertex = get_element!(edge, vertex);
+        let first_vertex = get_element!(edge, vertex);
+        let first_position = first_vertex.borrow().position;
         let mut current_edge = get_element!(edge, next);
+        let mut previous_vertex = get_element!(current_edge, vertex);
+        current_edge = get_element!(current_edge, next);
         while edge != current_edge {
             let vertex = get_element!(current_edge, vertex);
 
             let previous_position = previous_vertex.borrow().position;
             let current_position = vertex.borrow().position;
 
-            area += previous_position.x * current_position.y - previous_position.y * current_position.x;
+            let ab = previous_position - first_position;
+            let ac = current_position - first_position;
+
+            let ab_norm = ab.norm();
+            let ac_norm = ac.norm();
+
+            let cos_theta = (ab.dot(&ac)) / (ab_norm * ac_norm);
+
+            let triangle_area = ab_norm * ac_norm * (1f32 - cos_theta * cos_theta).sqrt();
+
+            area += triangle_area;
 
             previous_vertex = vertex;
             current_edge = get_element!(current_edge, next);
