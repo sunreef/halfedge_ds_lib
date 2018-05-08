@@ -28,7 +28,7 @@ impl<T: Pos> Vertex<T> {
                 let new_edge = match &current_edge.borrow().next {
                     &Some(ref edge) => Rc::clone(&edge),
                     &None => {
-                        panic!("Edge has no next edge: probably trying to find the degree of a border vertex.")
+                        panic!("Edge has no next edge: this should never be the case.")
                     }
                 };
                 current_edge = match &new_edge.borrow().opposite {
