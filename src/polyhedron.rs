@@ -3,7 +3,10 @@ use std::fs::File;
 use std::io::Write;
 use std::f64::consts::*;
 
-use simplesvg::*;
+use svg;
+use svg::Document;
+use svg::node::element::Path;
+use svg::node::element::path::Data;
 
 use utils::*;
 use pos::{Pos, Pos2};
@@ -659,40 +662,39 @@ impl Polyhedron2 {
 
 impl Polyhedron2 {
     pub fn draw_svg(&self, path: &str, height: u32, width: u32) {
-        let mut lines: Vec<Fig> = Vec::new();
-        let line_style = Attr::default().stroke(ColorAttr::Color(255u8,0u8,0u8));
-        let face_style = Attr::default().stroke(ColorAttr::Color(255u8,0u8,0u8)).fill(ColorAttr::Color(0u8, 0u8, 255u8));
-        for f in &self.facets {
-            let mut face_lines = Vec::new();
-            let degree = f.borrow().degree();
 
+        let mut svg_document = Document::new()
+            .set("viewBox", (0, 0, 500, 500));
+        for f in &self.facets {
+            let degree = f.borrow().degree();
             let mut current_edge = get_element!(f, edge);
+
+            let start_vertex = get_element!(current_edge, vertex);
+            let start_position = start_vertex.borrow().position;
+            let mut face_data = Data::new()
+                .move_to((start_position.x, start_position.y));
+
             for _ in 0..degree {
-                let first_vertex = get_element!(current_edge, vertex);
-                let first_position = first_vertex.borrow().position;
+                //let first_vertex = get_element!(current_edge, vertex);
+                //let first_position = first_vertex.borrow().position;
                 let next_edge = get_element!(current_edge, next);
                 let second_vertex = get_element!(next_edge, vertex);
                 let second_position = second_vertex.borrow().position;
                 current_edge = next_edge;
 
-                let mut line = Fig::Line(first_position.x, first_position.y, second_position.x, second_position.y);
-                face_lines.push(line);
+                face_data = face_data.line_by((second_position.x, second_position.y));
             }
+            face_data = face_data.close();
 
-            let triangle = Fig::Multiple(face_lines).styled(face_style.clone());
-            lines.push(triangle);
+            let face_path = Path::new()
+                .set("fill", "black")
+                .set("stroke", "red")
+                .set("stroke-width","3")
+                .set("d", face_data);
+            svg_document = svg_document.add(face_path);
         }
 
-        let svg = Svg(lines, height, width);
-
-        let mut file = match File::create(&path) {
-            Err(_) => panic!("Failed to create output SVG file"),
-            Ok(f) => f,
-        };
-        match write!(file, "{}", svg) {
-            Ok(_) => println!("Successfully wrote to {}.", path),   
-            Err(e) => panic!("{}", e),
-        };
+        svg::save(path, &svg_document).unwrap();
     }
 
     pub fn save_as_obj(&self, path: &str) {
